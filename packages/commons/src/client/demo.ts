@@ -2,7 +2,7 @@ import CKB from '@nervosnetwork/ckb-sdk-core/';
 import { ethers } from 'ethers';
 import { ForceBridgeAPIV1Handler } from './client';
 
-const FORCE_BRIDGE_URL = '47.56.233.149:3080/force-bridge/api/v1';
+const FORCE_BRIDGE_URL = 'http://47.56.233.149:3080/force-bridge/api/v1';
 const client = new ForceBridgeAPIV1Handler(FORCE_BRIDGE_URL);
 
 const ETH_NODE_URL = 'https://rinkeby.infura.io/v3/48be8feb3f9c46c397ceae02a0dbc7ae';
@@ -100,6 +100,8 @@ function asyncSleep(ms = 0) {
 async function main() {
   const lockTxId = await lock();
   await checkTransaction(lockTxId);
+
+  asyncSleep(10000);
 
   const burnTxId = await burn();
   await checkTransaction(burnTxId);
