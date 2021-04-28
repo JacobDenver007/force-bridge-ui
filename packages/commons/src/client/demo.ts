@@ -13,6 +13,7 @@ const ETH_SENDER = '0xf7185B3B967fAEB46Ac9F15BDa82EC61E49F7795';
 const CKB_NODE_URL = 'https://testnet.ckbapp.dev';
 const CKB_PRI_KEY = '0xa800c82df5461756ae99b5c6677d019c98cc98c7786b80d7b2e77256e46ea1fe';
 const CKB_ADDRESS = 'ckt1qyqyph8v9mclls35p6snlaxajeca97tc062sa5gahk';
+//const CKB_ADDRESS = 'ckt1qyq2rrw22thkefp5c7vw5wj3a7defgvsjqksyvety2';
 
 async function lock() {
   const lockPayload = {
@@ -52,9 +53,11 @@ async function burn() {
   };
 
   const burnTx = await client.generateBridgeOutNervosTransaction(burnPayload);
-
+  console.log('burnTx', JSON.stringify(burnTx));
   const ckb = new CKB(CKB_NODE_URL);
   const signedTx = ckb.signTransaction(CKB_PRI_KEY)(<CKBComponents.RawTransactionToSign>burnTx.rawTransaction);
+  console.log('signedTx', JSON.stringify(signedTx));
+
   const burnTxHash = await ckb.rpc.sendTransaction(signedTx);
   console.log('burn tx hash', burnTxHash);
   return burnTxHash;
@@ -100,8 +103,6 @@ function asyncSleep(ms = 0) {
 async function main() {
   const lockTxId = await lock();
   await checkTransaction(lockTxId);
-
-  asyncSleep(10000);
 
   const burnTxId = await burn();
   await checkTransaction(burnTxId);
