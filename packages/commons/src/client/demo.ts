@@ -10,18 +10,19 @@ const ETH_WALLET_PRIV = '0xc4ad657963930fbff2e9de3404b30a4e21432c89952ed430b56bf
 
 const CKB_NODE_URL = 'http://127.0.0.1:8114';
 const CKB_PRI_KEY = '0xa800c82df5461756ae99b5c6677d019c98cc98c7786b80d7b2e77256e46ea1fe';
+const CKB_ADDRESS = 'ckt1qyqyph8v9mclls35p6snlaxajeca97tc062sa5gahk';
 
-async function mint() {
-  const mintPayload = {
+async function lock() {
+  const lockPayload = {
     sender: '0x0',
-    recipient: 'ckt1qyqyph8v9mclls35p6snlaxajeca97tc062sa5gahk',
+    recipient: CKB_ADDRESS,
     asset: {
       network: 'Ethereum',
       ident: '0x0000000000000000000000000000000000000000',
       amount: '1',
     },
   };
-  const mintTx = await client.generateBridgeInNervosTransaction(mintPayload);
+  const mintTx = await client.generateBridgeInNervosTransaction(lockPayload);
 
   // metamask will provide nonce, gasLimit and gasPrice.
   const provider = new ethers.providers.JsonRpcProvider(ETH_NODE_URL);
@@ -30,19 +31,19 @@ async function mint() {
   const unsignedTx = <ethers.PopulatedTransaction>mintTx.rawTransaction;
   unsignedTx.nonce = await wallet.getTransactionCount();
   unsignedTx.gasLimit = ethers.BigNumber.from(1000000);
-  unsignedTx.gasPrice = ethers.BigNumber.from(0);
+  unsignedTx.gasPrice = await provider.getGasPrice();
 
   // use metamask to sign and send tx.
   const signedTx = await wallet.signTransaction(unsignedTx);
-  const mintTxHash = (await provider.sendTransaction(signedTx)).hash;
-  console.log('mint tx hash', mintTxHash);
-  return mintTxHash;
+  const lockTxHash = (await provider.sendTransaction(signedTx)).hash;
+  console.log('lock tx hash', lockTxHash);
+  return lockTxHash;
 }
 
 async function burn() {
   const burnPayload = {
     network: 'Ethereum',
-    sender: 'ckt1qyqyph8v9mclls35p6snlaxajeca97tc062sa5gahk',
+    sender: CKB_ADDRESS,
     recipient: '0x1000000000000000000000000000000000000001',
     asset: '0x0000000000000000000000000000000000000000',
     amount: '1',
@@ -60,7 +61,7 @@ async function burn() {
 async function getTransaction() {
   const getTxPayload = {
     network: 'Ethereum',
-    userIdent: 'ckt1qyqyph8v9mclls35p6snlaxajeca97tc062sa5gahk',
+    userIdent: CKB_ADDRESS,
     assetIdent: '0x0000000000000000000000000000000000000000',
   };
 
@@ -95,8 +96,8 @@ function asyncSleep(ms = 0) {
 }
 
 async function main() {
-  const mintTxId = await mint();
-  await checkTransaction(mintTxId);
+  const lockTxId = await lock();
+  await checkTransaction(lockTxId);
 
   const burnTxId = await burn();
   await checkTransaction(burnTxId);

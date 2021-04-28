@@ -38,6 +38,7 @@ export type GenerateBridgeOutNervosTransactionPayload = {
   network: string;
   asset: NervosNetwork['DerivedAssetIdent'];
   // XChain User ident
+  amount: string;
   recipient: string;
   sender: NervosNetwork['UserIdent'];
 };
