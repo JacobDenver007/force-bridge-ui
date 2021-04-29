@@ -33,8 +33,9 @@ export class ForceBridgeAPIV1Handler implements API.ForceBridgeAPIV1 {
     switch (result.network) {
       case 'Ethereum':
         {
+          console.log('result', result);
           const rawTx = result.rawTransaction;
-          rawTx.value = ethers.BigNumber.from(rawTx.value.hex);
+          rawTx.value = rawTx.value ? ethers.BigNumber.from(rawTx.value.hex) : ethers.BigNumber.from(0);
           result.rawTransaction = rawTx;
         }
         break;

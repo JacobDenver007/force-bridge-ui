@@ -7,7 +7,8 @@ const client = new ForceBridgeAPIV1Handler(FORCE_BRIDGE_URL);
 
 const ETH_NODE_URL = 'https://rinkeby.infura.io/v3/48be8feb3f9c46c397ceae02a0dbc7ae';
 const ETH_WALLET_PRIV = '0x49740e7b29259e7c2b693f365a9fd581cef75d1e346c8dff89ec037cdfd9f89d';
-const ETH_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000';
+//const ETH_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000';
+const ETH_TOKEN_ADDRESS = '0x7Af456bf0065aADAB2E6BEc6DaD3731899550b84';
 const ETH_SENDER = '0xf7185B3B967fAEB46Ac9F15BDa82EC61E49F7795';
 
 const CKB_NODE_URL = 'https://testnet.ckbapp.dev';
@@ -47,7 +48,7 @@ async function burn() {
   const burnPayload = {
     network: 'Ethereum',
     sender: CKB_ADDRESS,
-    recipient: '0x1000000000000000000000000000000000000001',
+    recipient: ETH_SENDER,
     asset: ETH_TOKEN_ADDRESS,
     amount: '1',
   };
@@ -71,7 +72,6 @@ async function getTransaction() {
   };
 
   const txs = await client.getBridgeTransactionSummaries(getTxPayload);
-  console.log('txs', JSON.stringify(txs));
   return txs;
 }
 
@@ -81,6 +81,9 @@ async function checkTransaction(txId: string) {
     await asyncSleep(3000);
     const txs = await getTransaction();
     for (const tx of txs) {
+      if (tx.txSummary.fromTransaction.txId == txId) {
+        console.log(tx);
+      }
       if (tx.status == 'Successful' && tx.txSummary.fromTransaction.txId == txId) {
         console.log(tx);
         find = true;
